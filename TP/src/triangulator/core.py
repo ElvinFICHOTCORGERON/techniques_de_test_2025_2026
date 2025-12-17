@@ -103,7 +103,6 @@ def triangulate_points(points: list[tuple[float, float]]) -> list[tuple[int, int
     if n < 3:
         raise InsufficientPointsError("Moins de 3 points fournis.")
 
-    # 1. Créer un "Super-Triangle" qui contient tous les points
     min_x = min(p[0] for p in points)
     max_x = max(p[0] for p in points)
     min_y = min(p[1] for p in points)
@@ -112,7 +111,6 @@ def triangulate_points(points: list[tuple[float, float]]) -> list[tuple[int, int
     delta = max(dx, dy)
     mid_x, mid_y = (min_x + max_x) / 2, (min_y + max_y) / 2
 
-    # Points du super-triangle (indices fictifs n, n+1, n+2)
     st_points = [
         (mid_x - 20 * delta, mid_y - delta),
         (mid_x + 20 * delta, mid_y - delta),
@@ -121,7 +119,6 @@ def triangulate_points(points: list[tuple[float, float]]) -> list[tuple[int, int
     all_pts = points + st_points
     triangulation = [(n, n + 1, n + 2)]
 
-    # 2. Insérer chaque point un par un
     for i, p in enumerate(points):
         bad_triangles = []
         for tri in triangulation:
@@ -152,7 +149,6 @@ def triangulate_points(points: list[tuple[float, float]]) -> list[tuple[int, int
         for edge in polygon:
             triangulation.append((edge[0], edge[1], i))
 
-    # 3. Nettoyage : retirer les triangles liés au super-triangle
     final_triangulation = []
     for tri in triangulation:
         if not any(idx >= n for idx in tri):
