@@ -1,15 +1,14 @@
-import pytest
-import struct
 import math
-import io
-from src.triangulator.exceptions import InvalidBinaryFormat
-import * from src.triangulator.core
+import struct
 
+import pytest
+from src.triangulator.core import (
+    deserialize_pointset,
+    serialize_triangles,
+    triangulate_points,
+)
+from src.triangulator.execption import InsufficientPointsError, InvalidBinaryFormat
 
-
-# ----------------------------------------------------------------------
-# TESTS DE DÉSÉRIALISATION POINTSET
-# ----------------------------------------------------------------------
 
 def test_deserialize_pointset_nominal_case():
     """Teste la désérialisation de 3 points valides avec vérification des flottants."""
@@ -25,7 +24,7 @@ def test_deserialize_pointset_nominal_case():
     
     actual_points = deserialize_pointset(binary_data) 
 
-    for actual, expected in zip(actual_points, expected_points):
+    for actual, expected in zip(actual_points, expected_points, strict=True):
         assert math.isclose(actual[0], expected[0], rel_tol=1e-5)
         assert math.isclose(actual[1], expected[1], rel_tol=1e-5)
     assert len(actual_points) == len(expected_points)
@@ -41,7 +40,7 @@ def test_deserialize_pointset_empty():
 
 
 def test_deserialize_pointset_truncated_header():
-    """Teste l'échec si le binaire est plus court que la taille de l'en-tête (4 bytes)."""
+    """Teste l'échec si le binaire est plus court que la taille de l'en-tête."""
     binary_data = b'\x01\x00\x00'
     
     with pytest.raises(InvalidBinaryFormat):
@@ -49,7 +48,7 @@ def test_deserialize_pointset_truncated_header():
 
 
 def test_deserialize_pointset_truncated_data():
-    """Teste l'échec si la taille des données de points ne correspond pas au compte (N=3 mais 1 seul point)."""
+    """Teste l'échec si la taille des données de points ne correspond pas au compte."""
     num_points_bin = struct.pack('<I', 3) 
     
     point1_bin = struct.pack('<ff', 1.0, 2.0)
@@ -59,13 +58,9 @@ def test_deserialize_pointset_truncated_data():
     with pytest.raises(InvalidBinaryFormat):
         deserialize_pointset(binary_data)
 
-# ----------------------------------------------------------------------
-# TESTS DE SÉRIALISATION TRIANGLES
-# ----------------------------------------------------------------------
 
 def test_serialize_triangles_single_triangle():
-    """
-    Teste la sérialisation d'un PointSet de 3 points résultant en 1 triangle.
+    """Teste la sérialisation d'un PointSet de 3 points résultant en 1 triangle.
     Vérifie la conformité du format binaire Triangles.
     """
     points = [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0)]
@@ -79,7 +74,10 @@ def test_serialize_triangles_single_triangle():
     triangles_header = struct.pack('<I', 1)
     triangles_data = struct.pack('<III', 0, 1, 2)
     
-    expected_binary = vertices_header + vertices_data + triangles_header + triangles_data
+    expected_binary = (
+        vertices_header + vertices_data + 
+        triangles_header + triangles_data
+    )
     
     actual_binary = serialize_triangles(points, triangles)
     
@@ -107,10 +105,6 @@ def test_serialize_triangles_invalid_index():
         serialize_triangles(points, triangles)
 
 
-# ----------------------------------------------------------------------
-# TESTS DE L'ALGORITHME DE TRIANGULATION
-# ----------------------------------------------------------------------
-
 def test_triangulate_points_simple_triangle():
     """Teste le cas le plus simple : 3 points non colinéaires (résultat unique)."""
     points = [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0)]
@@ -123,7 +117,7 @@ def test_triangulate_points_simple_triangle():
 
 
 def test_triangulate_points_square_two_triangles():
-    """Teste un cas simple de 4 points (carré) qui doit être décomposé en 2 triangles."""
+    """Teste un cas simple de 4 points (carré) qui doit être décomposé en 2 triangles"""
     points = [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)] 
     
     actual_triangles = triangulate_points(points) 
@@ -148,3 +142,4 @@ def test_triangulate_points_insufficient_points():
     
     with pytest.raises(InsufficientPointsError):
         triangulate_points(points_too_few)
+

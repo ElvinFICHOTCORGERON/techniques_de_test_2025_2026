@@ -1,17 +1,19 @@
 test:
-	pytest tests
+	python3 -m pytest tests
 
 unit_test:
-	pytest tests/unit -m "not perf"
+	python3 -m pytest tests/unit -m "not perf"
 
 perf_test:
-	pytest tests/performance -m "perf"
+	python3 -m pytest tests/performance -m "performance"
 
 coverage:
-	coverage run -m pytest tests
+	python3 -m coverage run -m pytest tests
+	python3 -m coverage report
 
 lint:
-	ruff check src tests
+	python3 -m ruff check src tests
 
 doc:
-	pdoc --html docs --output-dir docs --force
+	@mkdir -p docs
+	python3 -m pdoc src --output-dir docs --force

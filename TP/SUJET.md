@@ -51,6 +51,7 @@ architecture-beta
 #### PointSetManager
 
 Le `PointSetManager` se concentre sur la gestion des ensembles de points, il permet :
+
 - l'enregistrement de nouveaux ensembles de points
 - la récupération d'ensembles de points existants
 
@@ -79,6 +80,7 @@ Réalise des requêtes auprès des autres composants selon ses besoins.
 ### Workflow général
 
 Le workflow typique est le suivant:
+
 - Le `Client` envoie un `PointSet` au `PointSetManager` pour enregistrement
 - Le `PointSetManager` enregistre le `PointSet` et renvoie un `PointSetID` au `Client`
 - Le `Client` demande une triangulation au `Triangulator` en lui passant un `PointSetID`
@@ -86,7 +88,7 @@ Le workflow typique est le suivant:
 - Le `Triangulator` réalise la triangulation
 - Le `Triangulator` répond au `Client` avec les `Triangles` issus de la triangulation
 
-### Représentations de `PointSet` et `Triangles` 
+### Représentations de `PointSet` et `Triangles`
 
 `PointSet` et `Triangles` sont les 2 structures de données complexes qui transitent
 entre les composants.  
@@ -101,11 +103,12 @@ libre ensuite à chaque composant d'avoir la représentation interne qu'il dési
 `PointSet` est un ensemble de points dans un espace en 2D, chaque point de
 l'ensemble se résume donc à 2 coordonnées, X et Y.
 La représentation de ces données est assez simple:
+
 - Les 4 premiers bytes représentent un `unsigned long` donnant le nombre de
-points dans l'ensemble
+  points dans l'ensemble
 - Les bytes suivants représentent les points, avec pour chaque point 8 bytes.
-Les 4 premiers bytes sont la coordonnée X (un `float`) et les 4 bytes suivant
-la coordonnée Y (un `float` aussi).
+  Les 4 premiers bytes sont la coordonnée X (un `float`) et les 4 bytes suivant
+  la coordonnée Y (un `float` aussi).
 
 #### `Triangles`
 
@@ -114,6 +117,7 @@ points dans un espace à 2 dimensions, un `PointSet` donc. Il est donc assez
 logique que la représentation de `Triangles` soit dérivée de celle de `PointSet`.
 
 La représentation binaire de `Triangles` est donc en deux parties:
+
 - La première partie décrit les sommets et est strictement la même que pour un `PointSet`
 - La seconde partie décrit les triangles à proprement parler et se compose de:
   - 4 bytes (un `unsigned long`) qui représente le nombre de triangles
@@ -126,7 +130,7 @@ La représentation binaire de `Triangles` est donc en deux parties:
 ### Contraintes techniques
 
 L'idée est d'avoir un environnement Python (3.10+) minimaliste et que vous
-implémentiez toute la logique "from scratch". La seule bibliothèque  qui vous
+implémentiez toute la logique "from scratch". La seule bibliothèque qui vous
 est concédée est `flask`, on est pas cruels au point de vous demander de
 réimplémenter un serveur web.
 Le lancement de votre serveur `Triangulator` doit donc être possible dans un
@@ -135,6 +139,7 @@ environnement ne contenant que les dépendances présentes dans le fichier
 
 Vous avez aussi à votre disposition les bibliothèques présentes dans le fichier
 `dev_requirements.txt`, notamment :
+
 - `pytest` pour mettre au point et exécuter vos test
 - `coverage` pour mesurer la couverture de vos tests
 - `ruff` pour assurer la qualité de votre code
@@ -147,6 +152,7 @@ Vous avez aussi à votre disposition les bibliothèques présentes dans le fichi
 Il est attendu que vous mettiez en place un ensemble de tests unitaires pour
 valider le juste comportement de ce que vous développez. Ces tests doivent se
 retrouver à plusieurs échelles :
+
 - Au niveau de la triangulation même, pour vérifier que votre algorithme de
   triangulation donne des résultats corrects.
 - Au niveau de l'API que votre composant expose, pour vérifier qu'il se conforme
@@ -160,8 +166,9 @@ peuvent apparaître.
 
 L'objectif est que l'ensemble de votre code soit couvert par des test.
 Vous pouvez lancer cet outil avec une commande telle que :
+
 ```shell
-coverage run -m pytest arg1 arg2 arg3 
+coverage run -m pytest arg1 arg2 arg3
 ```
 
 Attention à ne pas confondre couverture et pertinence, il est tout à fait possible
@@ -189,13 +196,13 @@ générer la documentation de votre code grâce au package `pdoc3`.
 Vous pouvez ajouter des règles à `ruff` si vous l'estimez pertinent, mais pas en
 retirer, on vérifiera. ;)
 
-
 #### Lancement des différentes opérations
 
 Selon comment vous organisez votre code il est possible que vous ayez besoin
 d'adapter les commandes des différentes bibliothèques ou d'y ajouter des arguments.  
 Pour vous permettre cette flexibilité tout en ayant une certaine standardisation
 il est attendu que vous utilisiez `make` pour définir quelques targets :
+
 - `make test` : lance tous les tests (basé sur `pytest`)
 - `make unit_test` : lance tous les tests sauf les tests de performance (basé sur `pytest`)
 - `make perf_test` : lance uniquement les tests de performance (basé sur `pytest`)
@@ -215,6 +222,7 @@ commencez à implémenter, mais le but est que vous vous forciez à mener cette 
 en amont.
 
 Dans cette logique 4 rendus sont attendus :
+
 - Un plan de tests qui décrit dans les grandes lignes les tests que vous prévoyez
   de mettre en place et pourquoi/comment vous prévoyez de les mettre en place.
   Ce plan doit être rendu dans un fichier `PLAN.md` à la racine de votre projet
